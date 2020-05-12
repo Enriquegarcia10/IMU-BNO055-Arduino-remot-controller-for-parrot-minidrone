@@ -10,16 +10,30 @@ import simplejson
 
 
 
-MACmambo = "e0:14:d0:63:3d:d0"   #dirección MAC bluetooth del parrot mambo
+MACmambo = "D0:3A:89:B3:E6:5A"              #dirección MAC bluetooth del parrot mambo
 
-mambo = Mambo(MACmambo, use_wifi=False)   #declaración variable del drone
+mambo = Mambo(MACmambo, use_wifi=False)     #declaración variable del drone
+
+
+
 
 
 
 
 def conectar():
 
+    print("intentando conectar")
     success = mambo.connect(num_retries=3)
+    print("conectado: %s" % success)
+
+    if (success):
+        
+        print("sleeping")
+        mambo.smart_sleep(1)
+        mambo.ask_for_state_update()         # Se coge la información del estado del dron(importante para mostrar el nivel de la bateria)
+        mambo.smart_sleep(1)
+        
+    ventana.update()                         # se actualiza la ventana(si no se congelaria en el boton)
 
 def despegar():
 
@@ -27,45 +41,78 @@ def despegar():
     mambo.ask_for_state_update()
     mambo.smart_sleep(2)
 
+    print("despegando")
     mambo.safe_takeoff(5)
+    ventana.update()
 
 
 def aterrizar():
 
+    print("aterrizando")
     mambo.safe_land(10)
+    ventana.update()
 
 def derecha():
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=1)
+    mambo.fly_direct(roll=20, pitch=0, yaw=0, vertical_movement=0, duration=0.5)
+    ventana.update()
 
 def abajo():
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=1)
+    mambo.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=0.5)
+    ventana.update()
 
 def izquierda():
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=1)
+    mambo.fly_direct(roll=-20, pitch=0, yaw=0, vertical_movement=0, duration=0.5)
+    ventana.update()
 
 def arriba():
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=1)
+    mambo.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=0.5)
+    ventana.update()
 
 def subir():
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=5, duration=1)
+    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=20, duration=0.5)
+    ventana.update()
+
 
 def bajar():
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-5, duration=1)
+    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-20, duration=0.5)
+    ventana.update()
 
 def rotar_izquierda():
 
-    mambo.turn_degrees(5)
+    mambo.turn_degrees(10)
+    ventana.update()
 
 
 def rotar_derecha():
 
-    mambo.turn_degrees(-5)
+    mambo.turn_degrees(-10)
+    ventana.update()
+
+def desconectar():
+
+    print("desconectando")
+    mambo.disconnect()
+    ventana.update()
+
+def update():
+
+    while 1:
+
+        nivelbateria.set(mambo.sensors.battery)
+        ventana.update()
+        time.sleep(1)
+
+
+
+    
+
+
 
 ####DISEÑO TKINTER#####
 
@@ -112,6 +159,7 @@ boton11 = Button(ventana, image=imagen_boton11, width = 50 , height = 50, comman
 boton12 = Button(ventana, image=imagen_boton12, width = 50 , height = 50, command = subir )
 boton13 = Button(ventana, image=imagen_boton13, width = 50 , height = 50, command = rotar_derecha )
 boton14 = Button(ventana, image=imagen_boton14, width = 50 , height = 50, command = rotar_izquierda  )
+boton15 = Button(ventana, text = "DESCONECTAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="blue2", command = desconectar )
 
 #Posicionamiento de los botones
 
@@ -129,7 +177,21 @@ boton11.place(x=575,y=485)
 boton12.place(x=575,y=375)
 boton13.place(x=630,y=430)
 boton14.place(x=520,y=430)
+boton15.place(x=30,y=640)
 
+#Etiquetas
+
+Lbl_porcentage_bat = Label(text="%", font = ("Italic", 10, "bold"), bg="white").place (x=710, y= 120)
+
+nivelbateria = StringVar()
+
+Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=650,y=120)
+
+
+
+   
+
+ventana.after(10000,update)   # llama a la función update() con un delay de 1 ms
 
 ventana.mainloop()
 
