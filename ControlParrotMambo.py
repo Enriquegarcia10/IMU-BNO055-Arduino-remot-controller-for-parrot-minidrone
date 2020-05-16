@@ -18,8 +18,6 @@ mambo = Mambo(MACmambo, use_wifi=False)     #declaración variable del drone
 
 
 
-
-
 def conectar():
 
     print("intentando conectar")
@@ -27,6 +25,8 @@ def conectar():
     print("conectado: %s" % success)
 
     if (success):
+
+        mambo.set_max_tilt(velocidad.get)
         
         print("sleeping")
         mambo.smart_sleep(1)
@@ -110,8 +110,6 @@ def update():
 
 
 
-    
-
 
 
 ####DISEÑO TKINTER#####
@@ -123,6 +121,14 @@ ventana = Tk()
 ventana.title("control parrot Mambo")
 ventana.geometry("800x700")
 ventana.configure(background="white")
+
+
+#configuración velocidad
+
+velocidad=Scale(ventana,from_ =0, to=200, orient=HORIZONTAL,length=220, label= "Máxima inclinación (velocidad) " ,bg="white", tickinterval=100)
+velocidad.set(20)                            #Se inicializa como velocidad 20
+velocidad.place(x=20,y=180)
+
 
 
 #imagenes
@@ -140,7 +146,7 @@ imagen_boton14 = PhotoImage(file= "botrotar2.png")
 
 #Posición de las imagenes
 
-imagen_drone_posi = Label (ventana,image=imagen_drone). place(x=224,y=20)
+imagen_drone_posi = Label (ventana,image=imagen_drone). place(x=264,y=20)
 imagen_bateria_posi = Label (ventana, image=imagen_bateria). place(x=660,y= 20)
 
 #Declaracion de los botones
@@ -163,12 +169,12 @@ boton15 = Button(ventana, text = "DESCONECTAR", width = 10 , height = 1, font= (
 
 #Posicionamiento de los botones
 
-boton1.place(x=30,y=60)   
-boton2.place(x=30,y=130)
+boton1.place(x=50,y=40)   
+boton2.place(x=50,y=110)
 boton3.place(x=600,y=630)
 boton4.place(x=345,y=345)
 boton5.place(x=345,y=540)
-boton6.place(x=353,y=235)
+boton6.place(x=393,y=235)
 boton7.place(x=230,y=430)
 boton8.place(x=175,y=485)
 boton9.place(x=120,y=430)
@@ -185,7 +191,7 @@ Lbl_porcentage_bat = Label(text="%", font = ("Italic", 10, "bold"), bg="white").
 
 nivelbateria = StringVar()
 
-Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=650,y=120)
+Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=670,y=120)
 
 
 
@@ -193,7 +199,8 @@ Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=650,y=120)
 
 ventana.after(10000,update)   # llama a la función update() con un delay de 1 ms
 
-ventana.mainloop()
+ventana.update_idletasks()
+ventana.update()
 
 
 
