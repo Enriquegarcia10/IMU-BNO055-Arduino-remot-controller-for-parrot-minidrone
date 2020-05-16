@@ -199,8 +199,11 @@ Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=670,y=120)
 
 ventana.after(10000,update)   # llama a la función update() con un delay de 1 ms
 
-ventana.update_idletasks()
-ventana.update()
+while 1:
+
+
+    ventana.update_idletasks()
+    ventana.update()
 
 
 
