@@ -106,10 +106,9 @@ def desconectar():
     print("desconectado")
     ventana.update()
 
-def update():
+def cargabateria():
 
     
-
     nivelbateria.set(mambo.sensors.battery)
     ventana.update()
 
@@ -126,7 +125,7 @@ def correcion_angulos(angulo, zona_muerta, maximo ):
     else:
         
             
-        valor = float(min(valor, max))  #se coge el mínimo entre el valor entrado y el maximo definido
+        valor = float(min(valor, maximo))  #se coge el mínimo entre el valor entrado y el maximo definido
             
         valor -= zona_muerta
            
@@ -135,6 +134,9 @@ def correcion_angulos(angulo, zona_muerta, maximo ):
     return angulo
 
 
+oldz=0
+oldy=0
+oldx=0
 
 def auto():
 
@@ -145,16 +147,36 @@ def auto():
 
         jsonObject=simplejson.loads(jsonResult)
         x,y,z,sys,gyro,accel,mag= jsonObject["x"], jsonObject["y"], jsonObject["z"],jsonObject["sys"],jsonObject["gyro"],jsonObject["accel"],jsonObject["mag"]
+
         Z=float(z)*100/180
         Y=float(y)*100/90
         X=(((float(x)-0)*(180-(-180)))/(360-0))+(-180)
 
-       
+        restaz = Z - oldz
+        restay = Y - oldy
+        restax = X - oldx
+
+
+        print(Z)
+
+        if Z>10:
+
+            mambo.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=0.1)
         
+        elif Z<-10 :
+
+            mambo.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=0.1)
+
+        else:
+
+            mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=0)
+
+        oldz = Z
+        oldy = Y
+        oldx = X
 
 
-        #print (X , " " , Y , " " , Z , " ", sys , " " , gyro , " " , accel , " " , mag)
-        mambo.fly_direct(roll=0, pitch=Z, yaw=0, vertical_movement=0, duration=0.01)
+
     
     except Exception as Error:
 
@@ -256,20 +278,16 @@ while 1:
     ventana.update_idletasks()
     ventana.update()
 
-    
+    if counter==10:
 
-    if counter==1000:
-
-        
-        update()
+        cargabateria()
         couter=0
     
     else:
 
         counter+=1
+   
         
-
-    
 
     auto()
 
