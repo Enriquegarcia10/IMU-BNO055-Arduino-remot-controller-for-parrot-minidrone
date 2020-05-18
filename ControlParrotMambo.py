@@ -3,6 +3,7 @@ from pyparrot.Minidrone import Mambo
 import serial
 import time
 import simplejson
+import math
 
 
 ####PROGRAMACIÓN DRONE####
@@ -13,6 +14,10 @@ import simplejson
 MACmambo = "D0:3A:89:B3:E6:5A"              #dirección MAC bluetooth del parrot mambo
 
 mambo = Mambo(MACmambo, use_wifi=False)     #declaración variable del drone
+
+arduino = serial.Serial('/dev/ttyUSB0', 115200)
+
+dead_zone= 4
 
 
 
@@ -98,16 +103,64 @@ def desconectar():
 
     print("desconectando")
     mambo.disconnect()
+    print("desconectado")
     ventana.update()
 
 def update():
 
-    while 1:
+    
 
-        nivelbateria.set(mambo.sensors.battery)
-        ventana.update()
-        time.sleep(1)
+    nivelbateria.set(mambo.sensors.battery)
+    ventana.update()
 
+def correcion_angulos(angulo, zona_muerta, maximo ):
+
+    signo=math.copysign(1, angulo)      #se coge el signo del ángulo
+    valor = abs(angulo)                 #se trabaja con valores absolutos(al final se dará signo)
+
+    if (valor < zona_muerta):           #Los cambios de posicion inferiores a la zona muerto no són cogidos
+
+        angulo = 0
+        return angulo
+
+    else:
+        
+            
+        valor = float(min(valor, max))  #se coge el mínimo entre el valor entrado y el maximo definido
+            
+        valor -= zona_muerta
+           
+
+    angulo = float(signo*valor)
+    return angulo
+
+
+
+def auto():
+
+    jsonResult=arduino.readline()
+
+    try:
+            
+
+        jsonObject=simplejson.loads(jsonResult)
+        x,y,z,sys,gyro,accel,mag= jsonObject["x"], jsonObject["y"], jsonObject["z"],jsonObject["sys"],jsonObject["gyro"],jsonObject["accel"],jsonObject["mag"]
+        Z=float(z)*100/180
+        Y=float(y)*100/90
+        X=(((float(x)-0)*(180-(-180)))/(360-0))+(-180)
+
+       
+        
+
+
+        #print (X , " " , Y , " " , Z , " ", sys , " " , gyro , " " , accel , " " , mag)
+        mambo.fly_direct(roll=0, pitch=Z, yaw=0, vertical_movement=0, duration=0.01)
+    
+    except Exception as Error:
+
+        print(repr(Error))
+
+        pass
 
 
 
@@ -195,9 +248,7 @@ Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=670,y=120)
 
 
 
-   
-
-ventana.after(10000,update)   # llama a la función update() con un delay de 1 ms
+counter=0  
 
 while 1:
 
@@ -205,6 +256,22 @@ while 1:
     ventana.update_idletasks()
     ventana.update()
 
+    
+
+    if counter==1000:
+
+        
+        update()
+        couter=0
+    
+    else:
+
+        counter+=1
+        
+
+    
+
+    auto()
 
 
 
