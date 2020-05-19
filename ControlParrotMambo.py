@@ -29,6 +29,7 @@ oldx = 0
 restaz=0
 restay=0
 restax=0
+valor_acumulado=0
 
 #contador para lectura de la bateria
 
@@ -246,10 +247,11 @@ def main():
     global oldz
     global oldy
     global oldx
+    global valor_acumulado
     global counter
+    
 
 
-      
     while 1:
 
 
@@ -286,8 +288,10 @@ def main():
             restay = Y - oldy
             restax = X - oldx
 
+            
 
-            print(int(Z)," ",int(oldz)," ",restaz)
+
+            print(int(Z)," ",int(oldz)," ",restaz, " ", valor_acumulado)
 
             """if Z>10:
 
