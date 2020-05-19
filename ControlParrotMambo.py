@@ -21,6 +21,13 @@ dead_zone= 4
 
 
 
+oldz = 0
+oldy = 0
+oldx = 0
+restaz=0
+restay=0
+restax=0
+counter=0
 
 
 def conectar():
@@ -134,57 +141,6 @@ def correcion_angulos(angulo, zona_muerta, maximo ):
     return angulo
 
 
-oldz=0
-oldy=0
-oldx=0
-
-def auto():
-
-    jsonResult=arduino.readline()
-
-    try:
-            
-
-        jsonObject=simplejson.loads(jsonResult)
-        x,y,z,sys,gyro,accel,mag= jsonObject["x"], jsonObject["y"], jsonObject["z"],jsonObject["sys"],jsonObject["gyro"],jsonObject["accel"],jsonObject["mag"]
-
-        Z=float(z)*100/180
-        Y=float(y)*100/90
-        X=(((float(x)-0)*(180-(-180)))/(360-0))+(-180)
-
-        restaz = Z - oldz
-        restay = Y - oldy
-        restax = X - oldx
-
-
-        print(Z)
-
-        if Z>10:
-
-            mambo.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=0.1)
-        
-        elif Z<-10 :
-
-            mambo.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=0.1)
-
-        else:
-
-            mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=0)
-
-        oldz = Z
-        oldy = Y
-        oldx = X
-
-
-
-    
-    except Exception as Error:
-
-        print(repr(Error))
-
-        pass
-
-
 
 
 ####DISEÑO TKINTER#####
@@ -270,26 +226,83 @@ Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=670,y=120)
 
 
 
-counter=0  
+def main():
 
-while 1:
+    global oldz
+    global oldy
+    global oldx
+    global counter
 
 
-    ventana.update_idletasks()
-    ventana.update()
+      
+    while 1:
 
-    if counter==10:
 
-        cargabateria()
-        couter=0
-    
-    else:
+        ventana.update_idletasks()
+        ventana.update()
 
-        counter+=1
-   
         
 
-    auto()
+        if counter==10:
+
+            cargabateria()
+            couter=0
+        
+        else:
+
+            counter+=1
+    
+            
+
+        jsonResult=arduino.readline()
+        
+
+        try:
+                
+
+            jsonObject=simplejson.loads(jsonResult)
+            x,y,z,sys,gyro,accel,mag= jsonObject["x"], jsonObject["y"], jsonObject["z"],jsonObject["sys"],jsonObject["gyro"],jsonObject["accel"],jsonObject["mag"]
+
+            Z=float(z)*100/180
+            Y=float(y)*100/90
+            X=(((float(x)-0)*(180-(-180)))/(360-0))+(-180)
+
+            restaz = Z - oldz
+            restay = Y - oldy
+            restax = X - oldx
+
+
+            print(int(Z)," ",int(oldz)," ",restaz)
+
+            """if Z>10:
+
+                mambo.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=0.05)
+            
+            elif Z<-10 :
+
+                mambo.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=0.05)
+
+            else:
+
+                mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=0)"""
+
+            oldz = Z
+            oldy = Y
+            oldx = X
+
+
+
+        
+        except Exception as Error:
+
+            print(repr(Error))
+
+            pass
+
+
+if (__name__ == '__main__'):
+	main()
+
 
 
 
