@@ -20,14 +20,29 @@ arduino = serial.Serial('/dev/ttyUSB0', 115200)
 dead_zone= 4
 
 
+#DEFINICION DE VARIABLES
 
+#angulos relativos
 oldz = 0
 oldy = 0
 oldx = 0
 restaz=0
 restay=0
 restax=0
+
+#contador para lectura de la bateria
+
 counter=0
+
+#zonas muertas y maximos para filtrado de angulos
+
+zonamuerta_z = 0.5
+zonamuerta_y = 0.5
+zonamuerta_x = 0.5
+maximo_z = 5
+maximo_y = 5
+maximo_x = 5
+
 
 
 def conectar():
