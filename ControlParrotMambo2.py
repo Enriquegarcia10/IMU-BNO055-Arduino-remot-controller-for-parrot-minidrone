@@ -68,9 +68,8 @@ def despegar():
     mambo.ask_for_state_update()
     mambo.smart_sleep(2)
 
-    print("despegando")
+    print("despegando!")
     mambo.safe_takeoff(5)
-    mambo.smart_sleep(1)
     ventana.update()
 
 
@@ -78,48 +77,49 @@ def aterrizar():
 
     print("aterrizando")
     mambo.safe_land(10)
+    mambo.smart_sleep(5)
     ventana.update()
 
-def derecha():
+def derecha(speed):
 
-    mambo.fly_direct(roll=velocidad.get(), pitch=0, yaw=0, vertical_movement=0, duration=0.5)
+    mambo.fly_direct(roll=speed, pitch=0, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
 
-def abajo():
+def abajo(speed):
 
-    mambo.fly_direct(roll=0, pitch=-(velocidad.get()), yaw=0, vertical_movement=0, duration=0.5)
+    mambo.fly_direct(roll=0, pitch=-speed, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
 
-def izquierda():
+def izquierda(speed):
 
-    mambo.fly_direct(roll=-(velocidad.get()), pitch=0, yaw=0, vertical_movement=0, duration=0.5)
+    mambo.fly_direct(roll=-speed, pitch=0, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
 
-def arriba():
+def arriba(speed):
 
-    mambo.fly_direct(roll=0, pitch=velocidad.get(), yaw=0, vertical_movement=0, duration=0.5)
+    mambo.fly_direct(roll=0, pitch=speed, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
 
-def subir():
+def subir(speed):
 
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=velocidad.get(), duration=0.5)
-    ventana.update()
-
-
-def bajar():
-
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-(velocidad.get()), duration=0.5)
-    ventana.update()
-
-def rotar_izquierda():
-
-    mambo.turn_degrees(10)
+    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=speed, duration=0.5)
     ventana.update()
 
 
-def rotar_derecha():
+def bajar(speed):
 
-    mambo.turn_degrees(-10)
+    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-speed, duration=0.5)
+    ventana.update()
+
+def rotar_izquierda(speed):
+
+    mambo.fly_direct(roll=0, pitch=0, yaw=speed, vertical_movement=0, duration=0.5)
+    ventana.update()
+
+
+def rotar_derecha(speed):
+
+    mambo.fly_direct(roll=0, pitch=0, yaw=-speed, vertical_movement=0, duration=0.5)
     ventana.update()
 
 def desconectar():
@@ -225,14 +225,14 @@ boton3 = Button(ventana, text = "EMERGENCIA", width = 10 , height = 1,font= ("It
 boton4 = Button(ventana, text = "DESPEGAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="grey50", command = despegar )
 boton5 = Button(ventana, text = "ATERRIZAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="grey50", command = aterrizar )
 boton6 = Button(ventana, text = "CONECTAR", width = 8 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="green", command = conectar )
-boton7 = Button(ventana, image=imagen_boton7, width = 50 , height = 50, command= derecha )
-boton8 = Button(ventana, image=imagen_boton8, width = 50 , height = 50, command = abajo )
-boton9 = Button(ventana, image=imagen_boton9, width = 50 , height = 50, command = izquierda )
-boton10 = Button(ventana, image=imagen_boton10, width = 50 , height = 50, command = arriba )
-boton11 = Button(ventana, image=imagen_boton11, width = 50 , height = 50, command = bajar )
-boton12 = Button(ventana, image=imagen_boton12, width = 50 , height = 50, command = subir )
-boton13 = Button(ventana, image=imagen_boton13, width = 50 , height = 50, command = rotar_derecha )
-boton14 = Button(ventana, image=imagen_boton14, width = 50 , height = 50, command = rotar_izquierda  )
+boton7 = Button(ventana, image=imagen_boton7, width = 50 , height = 50, command=lambda:derecha(velocidad.get()) )
+boton8 = Button(ventana, image=imagen_boton8, width = 50 , height = 50, command =lambda: abajo(velocidad.get()))
+boton9 = Button(ventana, image=imagen_boton9, width = 50 , height = 50, command =lambda: izquierda(velocidad.get()) )
+boton10 = Button(ventana, image=imagen_boton10, width = 50 , height = 50, command =lambda: arriba(velocidad.get()) )
+boton11 = Button(ventana, image=imagen_boton11, width = 50 , height = 50, command =lambda: bajar(velocidad.get()) )
+boton12 = Button(ventana, image=imagen_boton12, width = 50 , height = 50, command =lambda: subir(velocidad.get()) )
+boton13 = Button(ventana, image=imagen_boton13, width = 50 , height = 50, command =lambda: rotar_derecha(velocidad.get()) )
+boton14 = Button(ventana, image=imagen_boton14, width = 50 , height = 50, command =lambda: rotar_izquierda(velocidad.get())  )
 boton15 = Button(ventana, text = "DESCONECTAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="blue2", command = desconectar )
 
 #Posicionamiento de los botones
@@ -338,19 +338,21 @@ def main():
                 
 
 
-                print(Z)
+                print(Z," ", Y)
 
-                if Z>10:
+                """if Z>10:
 
-                    mambo.fly_direct(roll=0, pitch=10, yaw=0, vertical_movement=0, duration=0.05)
+                    mambo.fly_direct(roll=0, pitch=10, yaw=0, vertical_movement=0, duration=0.005)
                 
                 elif Z<-10 :
 
-                    mambo.fly_direct(roll=0, pitch=-10, yaw=0, vertical_movement=0, duration=0.05)
+                    mambo.fly_direct(roll=0, pitch=-10, yaw=0, vertical_movement=0, duration=0.005)
 
                 else:
 
-                    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=0)
+                    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=0)"""
+                
+                mambo.fly_direct(roll=Y, pitch=Z, yaw=0, vertical_movement=0, duration=0.005)
 
                 oldz = Z
                 oldy = Y
