@@ -70,6 +70,7 @@ def despegar():
 
     print("despegando")
     mambo.safe_takeoff(5)
+    mambo.smart_sleep(1)
     ventana.update()
 
 
@@ -155,6 +156,29 @@ def correcion_angulos(angulo, zona_muerta, maximo ):
     angulo = float(signo*valor)
     return angulo
 
+def calibrar():
+
+
+    jsonResult=arduino.readline()
+                
+
+    try:
+                        
+
+        jsonObject=simplejson.loads(jsonResult)
+        sys,gyro,accel,mag= jsonObject["sys"],jsonObject["gyro"],jsonObject["accel"],jsonObject["mag"]
+        nivel_sys.set(sys)   
+        nivel_gyro.set(gyro)
+        nivel_accel.set(accel)
+        nivel_mag.set(mag)         
+
+    except Exception as Error:
+
+        print(repr(Error))
+
+        pass
+        
+
 
 
 
@@ -171,9 +195,9 @@ ventana.configure(background="white")
 
 #configuración velocidad
 
-velocidad=Scale(ventana,from_ =0, to=200, orient=HORIZONTAL,length=220, label= "Máxima inclinación (velocidad) " ,bg="white", tickinterval=100)
+velocidad=Scale(ventana,from_ =0, to=200, orient=HORIZONTAL,length=220, label= "               VELOCIDAD (%) " ,bg="white", tickinterval=100)
 velocidad.set(20)                            #Se inicializa como velocidad 20
-velocidad.place(x=20,y=50)
+velocidad.place(x=530,y=250)
 
 
 
@@ -192,11 +216,10 @@ imagen_boton14 = PhotoImage(file= "botrotar2.png")
 
 #Posición de las imagenes
 
-imagen_drone_posi = Label (ventana,image=imagen_drone). place(x=264,y=20)
+imagen_drone_posi = Label (ventana,image=imagen_drone). place(x=230,y=20)
 imagen_bateria_posi = Label (ventana, image=imagen_bateria). place(x=660,y= 20)
 
 #Declaracion de los botones
-
 
 boton3 = Button(ventana, text = "EMERGENCIA", width = 10 , height = 1,font= ("Italic" , 15, "bold"), fg="white",bg="red",   command = lambda: click_boton(3) )
 boton4 = Button(ventana, text = "DESPEGAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="grey50", command = despegar )
@@ -214,11 +237,10 @@ boton15 = Button(ventana, text = "DESCONECTAR", width = 10 , height = 1, font= (
 
 #Posicionamiento de los botones
 
-
 boton3.place(x=600,y=630)
 boton4.place(x=345,y=345)
 boton5.place(x=345,y=540)
-boton6.place(x=393,y=235)
+boton6.place(x=355,y=235)
 boton7.place(x=230,y=430)
 boton8.place(x=175,y=485)
 boton9.place(x=120,y=430)
@@ -234,15 +256,34 @@ boton15.place(x=30,y=640)
 man_auto = BooleanVar() 
 boton_control = Checkbutton(ventana, text='MANUAL',variable=man_auto,onvalue=True, offvalue=False)
 man_auto.set(True)
-boton_control.place(x=70,y=200)
+boton_control.place(x=60,y=230)
 
-#Etiquetas
+#Etiqueta bateria
 
 Lbl_porcentage_bat = Label(text="%", font = ("Italic", 10, "bold"), bg="white").place (x=710, y= 120)
 
 nivelbateria = StringVar()
 
 Lbl_bat= Label(ventana, textvariable= nivelbateria).place(x=670,y=120)
+
+#Etiqueta calibraciones
+
+Lbl_cal = Label(text="CALIBRACION IMU", font = ("Italic", 10, "bold"), bg="white").place (x=45, y= 40)
+Lbl_sys = Label(text="SYS:", font = ("Italic", 10), bg="white").place (x=60, y= 80)
+Lbl_gyro = Label(text="GYRO:", font = ("Italic", 10), bg="white").place (x=60, y= 100)
+Lbl_accel = Label(text="ACCEL:", font = ("Italic", 10), bg="white").place (x=60, y= 120)
+Lbl_mag = Label(text="MAG", font = ("Italic", 10), bg="white").place (x=60, y= 140)
+
+nivel_sys=StringVar()
+nivel_gyro=StringVar()
+nivel_accel=StringVar()
+nivel_mag=StringVar()
+
+Lbl_valor_sys= Label(ventana, textvariable= nivel_sys).place(x=140,y=80)
+Lbl_valor_gyro= Label(ventana, textvariable= nivel_gyro).place(x=140,y=100)
+Lbl_valor_accel= Label(ventana, textvariable= nivel_accel).place(x=140,y=120)
+Lbl_valor_mag= Label(ventana, textvariable= nivel_mag).place(x=140,y=140)
+
 
 
 
@@ -266,6 +307,7 @@ def main():
         if counter==10:
 
             cargabateria()
+            calibrar()
             couter=0
         
         else:
@@ -283,7 +325,7 @@ def main():
                     
 
                 jsonObject=simplejson.loads(jsonResult)
-                x,y,z,sys,gyro,accel,mag= jsonObject["x"], jsonObject["y"], jsonObject["z"],jsonObject["sys"],jsonObject["gyro"],jsonObject["accel"],jsonObject["mag"]
+                x,y,z= jsonObject["x"], jsonObject["y"], jsonObject["z"]
 
                 Z=float(z)*100/180
                 Y=float(y)*100/90
