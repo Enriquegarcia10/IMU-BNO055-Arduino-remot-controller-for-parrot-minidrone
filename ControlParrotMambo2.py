@@ -22,13 +22,17 @@ dead_zone= 4
 
 #DEFINICION DE VARIABLES
 
+#offsets
+
+offset_z=5
+offset_y=5
+
+
 #angulos relativos
+
 oldz = 0
 oldy = 0
 oldx = 0
-restaz=0
-restay=0
-restax=0
 
 
 #contador para lectura de la bateria
@@ -129,6 +133,22 @@ def desconectar():
     print("desconectado")
     ventana.update()
 
+def emergencia():
+
+    print("EMERGENCIA!!!!!")
+
+
+    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=2)
+
+    print("aterrizando")
+    mambo.safe_land(10)
+    mambo.smart_sleep(5)
+    ventana.update()
+
+
+
+
+
 def cargabateria():
 
     
@@ -155,6 +175,18 @@ def correcion_angulos(angulo, zona_muerta, maximo ):
 
     angulo = float(signo*valor)
     return angulo
+
+def correccion_offset(valor,offset):
+
+    if valor<offset and valor>-offset:
+
+        valor=0
+    
+    else:
+
+        valor=valor
+    
+    return valor
 
 def calibrar():
 
@@ -221,7 +253,7 @@ imagen_bateria_posi = Label (ventana, image=imagen_bateria). place(x=660,y= 20)
 
 #Declaracion de los botones
 
-boton3 = Button(ventana, text = "EMERGENCIA", width = 10 , height = 1,font= ("Italic" , 15, "bold"), fg="white",bg="red",   command = lambda: click_boton(3) )
+boton3 = Button(ventana, text = "EMERGENCIA", width = 10 , height = 1,font= ("Italic" , 15, "bold"), fg="white",bg="red",   command = emergencia )
 boton4 = Button(ventana, text = "DESPEGAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="grey50", command = despegar )
 boton5 = Button(ventana, text = "ATERRIZAR", width = 10 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="grey50", command = aterrizar )
 boton6 = Button(ventana, text = "CONECTAR", width = 8 , height = 1, font= ("Italic" , 10, "bold"), fg="white",bg="green", command = conectar )
@@ -254,7 +286,7 @@ boton15.place(x=30,y=640)
 #Boton de control
 
 man_auto = BooleanVar() 
-boton_control = Checkbutton(ventana, text='MANUAL',variable=man_auto,onvalue=True, offvalue=False)
+boton_control = Checkbutton(ventana, text='BLOQUEAR IMU',variable=man_auto,onvalue=True, offvalue=False)
 man_auto.set(True)
 boton_control.place(x=60,y=230)
 
@@ -292,6 +324,8 @@ def main():
     global oldz
     global oldy
     global oldx
+    global offset_z
+    global offset_y
     global counter
     
 
@@ -328,38 +362,28 @@ def main():
                 x,y,z= jsonObject["x"], jsonObject["y"], jsonObject["z"]
 
                 Z=float(z)*100/180
-                Y=float(y)*100/90
+                Y=(float(y)*100/90)*(-1)     #se multiplica por menos 1 ya que los valores de la IMU decrecen en sentido horario
                 X=(((float(x)-0)*(180-(-180)))/(360-0))+(-180)
+
+                Z=correccion_offset(Z,offset_z)
+                Y=correccion_offset(Y,offset_y)
 
                 restaz = Z - oldz
                 restay = Y - oldy
                 restax = X - oldx
 
-                
 
-
-                print(Z," ", Y)
-
-                """if Z>10:
-
-                    mambo.fly_direct(roll=0, pitch=10, yaw=0, vertical_movement=0, duration=0.005)
-                
-                elif Z<-10 :
-
-                    mambo.fly_direct(roll=0, pitch=-10, yaw=0, vertical_movement=0, duration=0.005)
-
-                else:
-
-                    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=0, duration=0)"""
-                
-                mambo.fly_direct(roll=Y, pitch=Z, yaw=0, vertical_movement=0, duration=0.005)
+                print(Z," ", Y," ", restax)
 
                 oldz = Z
                 oldy = Y
                 oldx = X
 
+                
+                
+                mambo.fly_direct(roll=0, pitch=0, yaw=restax, vertical_movement=0, duration=0.005)
 
-
+                
             
             except Exception as Error:
 
