@@ -43,10 +43,11 @@ counter=0
 
 zonamuerta_z = 0.5
 zonamuerta_y = 0.5
-zonamuerta_x = 0.5
+zonamuerta_x = 0.8
 maximo_z = 5
 maximo_y = 5
-maximo_x = 5
+maximo_x = 3
+factorx= 5
 
 
 
@@ -64,7 +65,8 @@ def conectar():
         mambo.ask_for_state_update()         # Se coge la información del estado del dron(importante para mostrar el nivel de la bateria)
         mambo.smart_sleep(1)
         
-    ventana.update()                         # se actualiza la ventana(si no se congelaria en el boton)
+    ventana.update()  
+                           # se actualiza la ventana(si no se congelaria en el boton)
 
 def despegar():
 
@@ -84,36 +86,42 @@ def aterrizar():
     mambo.smart_sleep(5)
     ventana.update()
 
+
 def derecha(speed):
 
     mambo.fly_direct(roll=speed, pitch=0, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
+
 
 def abajo(speed):
 
     mambo.fly_direct(roll=0, pitch=-speed, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
 
+
 def izquierda(speed):
 
     mambo.fly_direct(roll=-speed, pitch=0, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
+
 
 def arriba(speed):
 
     mambo.fly_direct(roll=0, pitch=speed, yaw=0, vertical_movement=0, duration=0.5)
     ventana.update()
 
+
 def subir(speed):
 
     mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=speed, duration=0.5)
     ventana.update()
-
+    
 
 def bajar(speed):
 
     mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-speed, duration=0.5)
     ventana.update()
+
 
 def rotar_izquierda(speed):
 
@@ -126,12 +134,14 @@ def rotar_derecha(speed):
     mambo.fly_direct(roll=0, pitch=0, yaw=-speed, vertical_movement=0, duration=0.5)
     ventana.update()
 
+
 def desconectar():
 
     print("desconectando")
     mambo.disconnect()
     print("desconectado")
     ventana.update()
+
 
 def emergencia():
 
@@ -146,16 +156,15 @@ def emergencia():
     ventana.update()
 
 
-
-
-
 def cargabateria():
 
     
     nivelbateria.set(mambo.sensors.battery)
     ventana.update()
 
+
 def correcion_angulos(angulo, zona_muerta, maximo ):
+
 
     signo=math.copysign(1, angulo)      #se coge el signo del ángulo
     valor = abs(angulo)                 #se trabaja con valores absolutos(al final se dará signo)
@@ -176,7 +185,9 @@ def correcion_angulos(angulo, zona_muerta, maximo ):
     angulo = float(signo*valor)
     return angulo
 
+
 def correccion_offset(valor,offset):
+
 
     if valor<offset and valor>-offset:
 
@@ -187,6 +198,7 @@ def correccion_offset(valor,offset):
         valor=valor
     
     return valor
+
 
 def calibrar():
 
@@ -326,6 +338,7 @@ def main():
     global oldx
     global offset_z
     global offset_y
+    global factorx
     global counter
     
 
@@ -363,7 +376,7 @@ def main():
 
                 Z=float(z)*100/180
                 Y=(float(y)*100/90)*(-1)     #se multiplica por menos 1 ya que los valores de la IMU decrecen en sentido horario
-                X=(((float(x)-0)*(180-(-180)))/(360-0))+(-180)
+                X=(((float(x)-0)*(100-(-100)))/(360-0))+(-100)
 
                 Z=correccion_offset(Z,offset_z)
                 Y=correccion_offset(Y,offset_y)
@@ -372,6 +385,8 @@ def main():
                 restay = Y - oldy
                 restax = X - oldx
 
+                #restax=correcion_angulos(restax,zonamuerta_x,maximo_x)
+                restax*=factorx
 
                 print(Z," ", Y," ", restax)
 
@@ -381,7 +396,7 @@ def main():
 
                 
                 
-                mambo.fly_direct(roll=0, pitch=0, yaw=restax, vertical_movement=0, duration=0.005)
+                mambo.fly_direct(roll=Y, pitch=Z, yaw=restax, vertical_movement=0, duration=0.005)
 
                 
             
