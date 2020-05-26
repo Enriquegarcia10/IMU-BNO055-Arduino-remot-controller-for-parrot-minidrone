@@ -17,7 +17,6 @@ mambo = Mambo(MACmambo, use_wifi=False)     #declaración variable del drone
 
 arduino = serial.Serial('/dev/ttyUSB0', 115200)
 
-dead_zone= 4
 
 
 #DEFINICION DE VARIABLES
@@ -65,9 +64,9 @@ def conectar():
         mambo.ask_for_state_update()         # Se coge la información del estado del dron(importante para mostrar el nivel de la bateria)
         mambo.smart_sleep(1)
         
-    ventana.update()  
-                           # se actualiza la ventana(si no se congelaria en el boton)
+    ventana.update()                # se actualiza la ventana(si no se congelaria en el boton)
 
+                                
 def despegar():
 
     mambo.smart_sleep(2)
@@ -345,11 +344,9 @@ def main():
 
     while 1:
 
-
         ventana.update_idletasks()
         ventana.update()
-
-        
+    
 
         if counter==10:
 
@@ -363,11 +360,8 @@ def main():
         
         if man_auto.get()==False:
     
-            
-
             jsonResult=arduino.readline()
             
-
             try:
                     
 
@@ -385,7 +379,6 @@ def main():
                 restay = Y - oldy
                 restax = X - oldx
 
-                #restax=correcion_angulos(restax,zonamuerta_x,maximo_x)
                 restax*=factorx
 
                 print(Z," ", Y," ", restax)
@@ -395,11 +388,9 @@ def main():
                 oldx = X
 
                 
-                
                 mambo.fly_direct(roll=Y, pitch=Z, yaw=restax, vertical_movement=0, duration=0.005)
 
                 
-            
             except Exception as Error:
 
                 print(repr(Error))
@@ -408,10 +399,7 @@ def main():
         
         else:
 
-            ventana.update()
-                
-        
-        
+            ventana.update()        
 
 
 if (__name__ == '__main__'):
